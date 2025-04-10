@@ -14,6 +14,8 @@ use App\Http\Controllers\SuperAdmin\SlabsController;
 use App\Http\Controllers\SuperAdmin\ActivePackageController;
 
 use App\Http\Controllers\accounts\AccountAuthController;
+use App\Http\Controllers\accounts\DataTablesController;
+use App\Http\Controllers\accounts\ReportsController;
 use App\Http\Controllers\operations\operationsAuthController;
 use App\Http\Controllers\investment\investmentAuthController;
 use Illuminate\Http\Request;
@@ -97,6 +99,30 @@ Route::prefix('accounts')->group(function () {
     Route::middleware(['web', 'accounts'])->group(function () {
         Route::get('/dashboard', [AccountAuthController::class, 'showDashboard'])->name('accounts.dashboards');
         Route::post('/logout', [AccountAuthController::class, 'logout'])->name('accounts.logout');
+
+        Route::get('accounts/InvestmentLedger', [DataTablesController::class, 'InvestmentLedger'])->name('account.InvestmentLedger');
+        Route::get('account/investment-ledger/export', [DataTablesController::class, 'exportInvestmentLedger'])->name('account.InvestmentLedger.export');
+
+        Route::get('accounts/InsuranceData', [DataTablesController::class, 'InsuranceData'])->name('account.InsuranceData');
+        Route::get('account/export-insurance-data', [DataTablesController::class, 'exportInsuranceData'])->name('account.exportInsuranceData');
+
+        Route::get('accounts/CustomerSavingsMaster', [DataTablesController::class, 'CustomerSavingsMaster'])->name('account.CustomerSavingsMaster');
+        Route::get('accounts/exportCustomerSavingsMaster', [DataTablesController::class, 'exportCustomerSavingsMaster'])->name('account.exportCustomerSavingsMaster');
+
+
+
+        Route::get('accounts/Beneficiary', [DataTablesController::class, 'Beneficiary'])->name('account.Beneficiary');
+        Route::get('accounts/exportBeneficiaryData', [DataTablesController::class, 'exportBeneficiaryData'])->name('account.exportBeneficiaryData');
+
+        Route::get('accounts/DailyReturn', [DataTablesController::class, 'DailyReturn'])->name('account.DailyReturn');
+        Route::get('accounts/exportDailyReturn', [DataTablesController::class, 'exportDailyReturn'])->name('account.exportDailyReturn');
+
+
+        Route::get('accounts/SearchForm', [DataTablesController::class, 'SearchForm'])->name('account.SearchForm');
+        Route::get('search/searchCustomer', [DataTablesController::class, 'searchCustomer'])->name('account.searchCustomer');
+
+
+
 
     });
 });
