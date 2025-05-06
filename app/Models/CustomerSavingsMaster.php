@@ -32,6 +32,7 @@ class CustomerSavingsMaster extends Model
         'tenure_days',
         'active_days',
         'maturity_status',
+        'is_zakat_applicable',
         'last_profit_calculated_at',
     ];
 
@@ -50,6 +51,11 @@ class CustomerSavingsMaster extends Model
     {
         return $this->belongsTo(EasypaisaUser::class, 'customer_id');
     }
+    
+    public function scopeWithZakat($query)
+{
+    return $query->where('is_zakat_applicable', true); // ✅ Optional scope
+}
 
     /**
      * Scope for Active Savings

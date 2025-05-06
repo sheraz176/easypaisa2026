@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Services\EasypaisaPaymentService;
 use Illuminate\Support\Facades\Http;
+use App\Jobs\SendExternalPaymentNotification;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\ExternalPaymentNotifier;
+use App\Jobs\LogPaymentNotificationJob;
+
 
 
 
@@ -28,6 +33,7 @@ class SavingController extends Controller
             'customer_open_id'  => 'required|string',
             'initial_deposit'   => 'required|numeric|min:1',
             'tenure_days'       => 'required|integer|min:1',
+            'zakat_status'      => 'required', 
             //'transaction_id'    => 'required|string',
         ]);
     
@@ -62,6 +68,7 @@ class SavingController extends Controller
                 'tenure_days'        => $validated['tenure_days'],
                 'saving_status'      => 'pending-payment',
                 'transaction_id'     => 'No Available',
+                'is_zakat_applicable'=> $validated['zakat_status'],
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ]);
@@ -73,7 +80,7 @@ class SavingController extends Controller
     
             // ✅ Call Payment API using Service Class
             $paymentService = new EasypaisaPaymentService();
-            $paymentResponse = $paymentService->createPaymentservice($savingId, $validated['initial_deposit']);
+            $paymentResponse = $paymentService->createPaymentservice("test".$savingId, $validated['initial_deposit']);
             
             //return $savingId;
             return response()->json([
@@ -88,7 +95,7 @@ class SavingController extends Controller
     }
     public function withdraw(Request $request)
     {
-        echo "withdraw";
+        
     }
 
 
@@ -158,7 +165,8 @@ class SavingController extends Controller
                             [
                                 "gross_amount" => (string) $savingData->initial_deposit,
                                 "transaction_type" => "deposit",
-                                "date_time" => now()->toDateTimeString()
+                                "date_time" => now()->toDateTimeString(),
+                                "transaction_id" => "123242321321321"
                             ]
                         ]
                     ]
@@ -259,6 +267,7 @@ class SavingController extends Controller
             'tenure_days' => $savingData->tenure_days,
             'active_days' => 0,
             'maturity_status' => 'in-progress',
+            'is_zakat_applicable' => $savingData->is_zakat_applicable,
             'last_profit_calculated_at' => null,
             'created_at' => now(),
             'updated_at' => now(),
@@ -361,7 +370,7 @@ class SavingController extends Controller
 
             // Call Payment API using Service Class
             $paymentService = new EasypaisaPaymentService();
-            $paymentResponse = $paymentService->createPaymentservice('add-funds'.$temporaryAddFundsId, $validated['additional_deposit']);
+            $paymentResponse = $paymentService->createPaymentservice('add-fundsm'.$temporaryAddFundsId, $validated['additional_deposit']);
 
             return response()->json([
                 'temporary_add_funds_id' => $temporaryAddFundsId,
@@ -374,62 +383,128 @@ class SavingController extends Controller
         }
     }
 
-    public function confirmAddFunds(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-            $temporaryAddFundsId = $request->temporaryAddFundsID;
-            $paymentStatus = $request->paymentStatus;
-            $failureReason = $request->failureReason ?? 'Unknown error';
-            $transactionId = $request->transaction_id ?? null;
+    
 
-            // Fetch the temporary funds addition record
-            $addFundsData = DB::table('temporary_add_funds')->where('id', $temporaryAddFundsId)->first();
-            if (!$addFundsData) {
-                return response()->json(['error' => 'Invalid funds addition ID'], 400);
-            }
 
-            // Fetch the existing saving record
-            $existingSaving = DB::table('customer_savings_master')->where('id', $addFundsData->saving_id)->first();
-            if (!$existingSaving) {
-                return response()->json(['error' => 'No matching saving found'], 400);
-            }
+         
 
-            //return $addFundsData;
-            if ($paymentStatus === 'success') {
-                // Update the saving record with the new deposit
-                DB::table('customer_savings_master')
-                    ->where('id', $existingSaving->id)
-                    ->increment('fund_growth_amount', $addFundsData->added_funds); // Add funds
-                
-                //return $addFundsData;    
-                // Log the investment transaction for adding funds
-                $this->logInvestmentTransactionaddedfunds($addFundsData, $existingSaving->id, $transactionId);
+            public function confirmAddFunds(Request $request)
+{
+    DB::beginTransaction();
+    try {
+        $temporaryAddFundsId = $request->temporaryAddFundsID;
+        $paymentStatus = $request->paymentStatus;
+        $failureReason = $request->failureReason ?? 'Unknown error';
+        $transactionId = $request->transaction_id ?? null;
 
-                DB::table('temporary_add_funds')->where('id', $temporaryAddFundsId)->delete(); // Remove temporary record
-
-                DB::commit();
-
-                return response()->json([
-                    'message' => 'Funds successfully added!',
-                    'saving_id' => $existingSaving->id,
-                    'additional_deposit' => $addFundsData->added_funds,
-                ], 201);
-            } else {
-                // Log the failed attempt
-                $this->logFailedSavingAttempt($addFundsData, $transactionId, $failureReason);
-
-                // Remove temporary record
-                DB::table('temporary_add_funds')->where('id', $temporaryAddFundsId)->delete();
-
-                DB::commit();
-                return response()->json(['error' => 'Payment Failed. Funds addition attempt logged.'], 400);
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Something went wrong!', 'details' => $e->getMessage()], 500);
+        // Fetch the temporary funds addition record
+        $addFundsData = DB::table('temporary_add_funds')->where('id', $temporaryAddFundsId)->first();
+        if (!$addFundsData) {
+            return response()->json(['error' => 'Invalid funds addition ID'], 400);
         }
+
+        // Fetch the existing saving record
+        $existingSaving = DB::table('customer_savings_master')->where('id', $addFundsData->saving_id)->first();
+        if (!$existingSaving) {
+            return response()->json(['error' => 'No matching saving found'], 400);
+        }
+
+        // Fetch the insurance data for eful_policy_number
+        $insuranceData = DB::table('insurance_data')->where('saving_id', $existingSaving->id)->first();
+
+        if ($paymentStatus === 'success') {
+            // Update the saving record with the new deposit
+            DB::table('customer_savings_master')
+                ->where('id', $existingSaving->id)
+                ->increment('fund_growth_amount', $addFundsData->added_funds);
+
+            // Log the investment transaction for adding funds
+            $this->logInvestmentTransactionaddedfunds($addFundsData, $existingSaving->id, $transactionId);
+
+            // Remove temporary record
+            DB::table('temporary_add_funds')->where('id', $temporaryAddFundsId)->delete();
+
+            DB::commit();
+
+            // Send external payment notification directly using Laravel's HTTP client
+            $requestData = [
+                'customer_id' => $insuranceData->eful_policy_number ?? $existingSaving->customer_id,
+                'amount' => (string) $addFundsData->added_funds,
+                'transaction_type' => 'Additional deposit',
+                'transaction_id' => $transactionId,
+                'date_time' => now()->format('Y-m-d H:i:s'),
+                'gross_amount' => (string) $addFundsData->added_funds,
+            ];
+
+            // Log the request data before sending it
+            Log::info('Sending External Payment Notification', [
+                'request_data' => $requestData,
+            ]);
+
+            // Send the request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer XXXXAAA123EPDIGITAKAFUL',
+                'channelcode' => 'EPDIGITAKAFUL',
+                'Content-Type' => 'application/json',
+            ])
+            ->post('https://api.efulife.com/epay/digi/tkf/sync/payments', $requestData);
+
+            // Process the response
+            $responseBody = $response->body();
+            $statusCode = $response->status();
+
+            Log::info('Payment Notification Response', [
+                'status_code' => $statusCode,
+                'transaction_id' => $transactionId,
+                'response_body' => $responseBody,
+            ]);
+
+            // Log the response in the database
+            DB::table('external_api_logs')->insert([
+                'payload' => json_encode($requestData),
+                'status' => $statusCode >= 200 && $statusCode < 300 ? 'success' : 'failed',
+                'response' => $responseBody,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'message' => 'Funds successfully added!',
+                'saving_id' => $existingSaving->id,
+                'additional_deposit' => $addFundsData->added_funds,
+            ], 201);
+
+        } else {
+            // Log the failed attempt
+            $this->logFailedSavingAttempt($addFundsData, $transactionId, $failureReason);
+
+            // Remove temporary record
+            DB::table('temporary_add_funds')->where('id', $temporaryAddFundsId)->delete();
+
+            DB::commit();
+            return response()->json(['error' => 'Payment Failed. Funds addition attempt logged.'], 400);
+        }
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => 'Something went wrong!', 'details' => $e->getMessage()], 500);
     }
+}
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
 
 
 

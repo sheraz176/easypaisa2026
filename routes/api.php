@@ -6,7 +6,12 @@ use App\Http\Controllers\SuperAdmin\SlabsController;
 use App\Http\Controllers\EasypaisaController;
 use App\Http\Controllers\API\SavingController;
 use App\Http\Controllers\API\InsuranceDataController;
+use App\Http\Controllers\API\WithdrawSavingController;
 use App\Http\Controllers\BeneficiaryController;
+use App\Http\Controllers\API\WithdrawController;
+use App\Http\Controllers\API\PDFController;
+
+
 
 
 
@@ -34,9 +39,9 @@ Route::post('/easypaisa/createPayment', [EasypaisaController::class, 'createPaym
 Route::post('/easypaisa/daily-profit', [EasypaisaController::class, 'getDailyReturns'])->name('easypaisa.getDailyReturns');
 
 
-//Order Create Start Saving API 
-// Withdrawal API 
-// Add Funds API 
+//Order Create Start Saving API
+// Withdrawal API
+// Add Funds API
 
 //Payment Ky Baad Order Start Saving Hogi and Then Daily Profit Calculate hoga.
 
@@ -50,9 +55,21 @@ Route::post('/eful/add-beneficiary', [BeneficiaryController::class, 'store']);
 Route::post('/eful/add-funds', [SavingController::class, 'addFunds'])->name('easypaisa.addFunds');
 Route::post('/eful/confirm-add-funds', [SavingController::class, 'confirmAddFunds'])->name('easypaisa.confirmAddFunds');
 
+Route::post('/eful/withdraw', [WithdrawSavingController::class, 'cashDepositRequest'])->name('easypaisa.cashDepositRequest');
+Route::post('/eful/dailyprofit', [WithdrawSavingController::class, 'dailyprofit'])->name('easypaisa.dailyprofit');
+
 
 
 
 //Insurance API,
 Route::post('eful/update-active-policy', [InsuranceDataController::class, 'updateActivePolicy']);
+
+Route::post('eful/generate-benefits-pdf', [PDFController::class, 'generate']);
+
+Route::post('upload/file', [PDFController::class, 'uploadRefundFile']);
+
+
+Route::post('/withdraw-summary', [WithdrawController::class, 'withdrawSummary']);
+Route::post('/withdraw', [WithdrawController::class, 'withdraw']);
+
 

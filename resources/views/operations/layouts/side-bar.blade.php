@@ -23,6 +23,13 @@
                             <a class="nxl-link" href="{{route('operations.dashboards')}}">Home</a></li>
 
                     </ul>
+
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item  {{ Request::is('super-admin/operation/RefundReport') ? 'active' : '' }}">
+                            <a class="nxl-link" href="{{route('operation.RefundReport')}}">Reports</a></li>
+                    </ul>
+
+
                 </li>
 
 

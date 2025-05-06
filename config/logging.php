@@ -119,6 +119,13 @@ return [
             'path' => storage_path('logs/api/non_recusive.log'),
             'level' => 'info',
         ],
+
+        'data_api' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/api/data_api.log'),
+            'level' => 'info',
+        ],
+
     ],
 
 ];

@@ -1,7 +1,3 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -13,61 +9,84 @@
     <meta name="keyword" content="">
     <meta name="author" content="Sheraz">
 
-    <title>EasyPaisa || Login </title>
+    <title>EasyPaisa || Login</title>
 
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/logo-abbr.png') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/css/vendors.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/theme.min.css') }}">
 
+    <style>
+        .role-card {
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            transition: 0.3s;
+            cursor: pointer;
+            background-color: #f8f9fa;
+        }
+
+        .role-card:hover {
+            background-color: #e9ecef;
+        }
+
+        .role-card img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .role-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
-
     <main class="auth-minimal-wrapper">
         <div class="auth-minimal-inner">
             <div class="minimal-card-wrapper">
-                <div class="card mb-4 mt-5 mx-4 mx-sm-0 position-relative">
-                    <div class="wd-50 bg-white p-2 rounded-circle shadow-lg position-absolute translate-middle top-0 start-50">
-                        <img src="{{ asset('assets/images/logo-abbr.png') }}" alt="" class="img-fluid" style="height: 100%">
-                    </div>
-                    <div class="card-body p-sm-5">
-                        <h2 class="fs-20 fw-bolder mb-4">Login</h2>
-                        <h4 class="fs-13 fw-bold mb-2">Login to your account</h4>
-                        <p class="fs-12 fw-medium text-muted">Thank you for get back ,let's access our the best recommendation for you.</p>
+                <div class="card p-sm-5 text-center d-flex flex-column align-items-center">
+                    <img src="{{ asset('assets/images/logo-abbr.png') }}" alt="Logo" class="mb-4" style="max-width: 250px;">
+                    <div class="card-body p-sm-2">
+                        <h4 class="fs-17 mb-2 fw-medium text-muted">Select Your Role Provided by Business Operation Team</h4>
+                        <p class="fs-11 fw-medium text-muted">Contact IT for information if you are unsure about your role.</p>
 
+                        <div class="role-container">
+                            <a href="{{ route('superadmin.login') }}" class="role-card text-decoration-none text-dark">
+                                <img src="{{ asset('assets/images/admin.png') }}" alt="Super Admin">
+                                <h6>Super Admin</h6>
+                            </a>
 
-                        <div class="dropdown">
-                            <button class="btn btn-lg btn-primary w-100 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                Select Role
-                            </button>
-                            <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="{{ route('superadmin.login') }}">Super Admin</a></li>
-                                <li><a class="dropdown-item" href="{{ route('accounts.login') }}">Accounts</a></li>
-                                <li><a class="dropdown-item" href="{{ route('investment.login') }}">Investment</a></li>
-                                <li><a class="dropdown-item" href="{{ route('operations.login') }}">Operations</a></li>
-                            </ul>
+                            <a href="{{ route('accounts.login') }}" class="role-card text-decoration-none text-dark">
+                                <img src="{{ asset('assets/images/accountant.png') }}" alt="Accounts">
+                                <h6>Accounts</h6>
+                            </a>
+
+                            <a href="{{ route('investment.login') }}" class="role-card text-decoration-none text-dark">
+                                <img src="{{ asset('assets/images/saving.png') }}" alt="Investment">
+                                <h6>Investment</h6>
+                            </a>
+
+                            <a href="{{ route('operations.login') }}" class="role-card text-decoration-none text-dark">
+                                <img src="{{ asset('assets/images/operational-system.png') }}" alt="Operations">
+                                <h6>Operations</h6>
+                            </a>
                         </div>
 
-
-
-                        {{-- <div class="mt-5 text-muted">
-                            <span> Don't have an account?</span>
-                            <a href="#" class="fw-bold">Create an Account</a>
-                        </div> --}}
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-
-
     <script src="{{ asset('assets/vendors/js/vendors.min.js') }}"></script>
     <script src="{{ asset('assets/js/common-init.min.js') }}"></script>
     <script src="{{ asset('assets/js/theme-customizer-init.min.js') }}"></script>
-
 </body>
 
 </html>
-

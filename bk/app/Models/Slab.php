@@ -23,5 +23,9 @@ class Slab extends Model
         return $this->belongsTo(Package::class);
     }
 
+    public function customerSavings(): HasMany
+    {
+        return $this->hasMany(CustomerSavingsMaster::class, 'activated_slab', 'id');
+    }
 
 }

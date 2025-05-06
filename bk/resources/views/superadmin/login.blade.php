@@ -20,19 +20,25 @@
 </head>
 
 <body>
-
+    <div>
+         
+     </div>
     <main class="auth-creative-wrapper">
+    
         <div class="auth-creative-inner">
             <div class="creative-card-wrapper">
+            
                 <div class="card my-4 overflow-hidden" style="z-index: 1">
+                    
                     <div class="row flex-1 g-0">
+                    
                         <div class="col-lg-6 h-100 my-auto">
-                            <div class="wd-50 bg-white p-2 rounded-circle shadow-lg position-absolute translate-middle top-50 start-50">
-                                <img src="{{ asset('assets/images/logo-abbr.png') }}" alt="" class="img-fluid">
-                            </div>
-                            <div class="creative-card-body card-body p-sm-5">
-                                <h2 class="fs-20 fw-bolder mb-4">Login</h2>
-                                  <h4 class="fs-13 fw-bold mb-2">Login to your account</h4>
+                            
+                            <div class="creative-card-body card-body p-sm-5 text-center d-flex flex-column align-items-center">
+                                
+                            <img src="{{ asset('assets/images/logo-abbr.png') }}" alt="Logo" class="mb-4" style="max-width: 250px;">
+                        
+                                  <h4 class="fs-13 fw-bold mb-2">Master Control for Easypaisa Digital Saving</h4>
                                     <p class="fs-12 fw-medium text-muted">Thank you for get back <strong>Super Admin</strong>, let's access our the best recommendation for you.</p>
                                 @if(session('status'))
                                <div class="alert alert-success">
@@ -69,7 +75,7 @@
                                            </div>
                                        </div>
                                        <div>
-                                           <a href="#" class="fs-11 text-primary">Forget password?</a>
+                                           <a href="#" class="fs-11">Forget password?</a>
                                        </div>
                                    </div>
                                    <div class="mt-5">
@@ -81,7 +87,7 @@
                         </div>
                         <div class="col-lg-6 bg-primary">
                             <div class="h-100 d-flex align-items-center justify-content-center">
-                                <img src="https://cdn.pixabay.com/photo/2022/09/24/16/52/password-7476798_1280.png" alt="" class="img-fluid">
+                                <img src="{{ asset('assets/images/login-page.png') }}" alt="" class="img-fluid">
                             </div>
                         </div>
                     </div>

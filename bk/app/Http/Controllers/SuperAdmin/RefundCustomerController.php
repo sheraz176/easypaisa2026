@@ -18,14 +18,14 @@ class RefundCustomerController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = RefundCases::with('investmentmaster.customer') // Load the related customer via investmentMaster
-                ->orderBy('created_at', 'desc');
+            $data = RefundCases::// Load the related customer via investmentMaster
+                orderBy('created_at', 'desc');
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('customer_name', function ($data) {
                     // Access the related customer name via investmentMaster.customer
-                    return $data->investmentmaster->customer->name ?? 'N/A'; // Display 'N/A' if customer is not found
+                    return 'N/A'; // Display 'N/A' if customer is not found
                 })
                 ->addColumn('action', function ($data) {
                     return '

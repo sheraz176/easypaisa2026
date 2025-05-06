@@ -110,22 +110,41 @@ class EasypaisaController extends Controller
                 $openId = $validated['open_id'];
                
                 // Fetch user with related customerSaving and transactions
+                // $user = EasypaisaUser::where('open_id', $openId)
+                //     ->with([
+                //         'customerSaving' => function ($query) {
+                //             $query->select(
+                //                 'id', 'customer_id', 'saving_status',
+                //                 'saving_start_date', 'saving_end_date','fund_growth_amount','active_days','tenure_days'
+                //             );
+                //         },
+                //         'transactions' => function ($query) {
+                //             $query->orderBy('date_time', 'desc')
+                //                 ->limit(5)
+                //                 ->select('customer_id', 'saving_id', 'amount', 'transaction_type', 'date_time', 'gross_amount');
+                //         }
+                //     ])
+                //     ->first();
+                
                 $user = EasypaisaUser::where('open_id', $openId)
-                    ->with([
-                        'customerSaving' => function ($query) {
-                            $query->select(
-                                'id', 'customer_id', 'saving_status',
-                                'saving_start_date', 'saving_end_date','fund_growth_amount','active_days','tenure_days'
-                            );
-                        },
-                        'transactions' => function ($query) {
-                            $query->orderBy('date_time', 'desc')
-                                ->limit(5)
-                                ->select('customer_id', 'saving_id', 'amount', 'transaction_type', 'date_time', 'gross_amount');
-                        }
-                    ])
-                    ->first();
-        
+                        ->with(['customerSaving' => function ($query) {
+                            $query->where('saving_status', 'on-going')
+                                  ->select(
+                                      'id', 'customer_id', 'saving_status',
+                                      'saving_start_date', 'saving_end_date',
+                                      'fund_growth_amount', 'active_days', 'tenure_days'
+                                  );
+                        }])
+                        ->first();
+                    
+                    if ($user && $user->customerSaving) {
+                        $user->setRelation('transactions', InvestmentLedgerSaving::where('saving_id', $user->customerSaving->id)
+                            ->orderBy('date_time', 'desc')
+                            ->limit(5)
+                            ->select('customer_id', 'saving_id', 'amount', 'transaction_type', 'date_time', 'gross_amount')
+                            ->get());
+                    }
+                        
                 if (!$user) {
                     return response()->json([
                         'status' => 404,
